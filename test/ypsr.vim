@@ -41,16 +41,16 @@ function! s:suite.ypsr()
   endfor
 
   execute "normal!" "G"
-  call ypsr#do("test1", vv, sf, [2,4])
+  :2,4call ypsr#do("test1", vv, sf)
   if s:debug
     call writefile(getline(0, line('$')), "/tmp/ypsr2")
   endif
 
-  for i in range(len(s:lines))
+  for i in range(4)
     call s:assert.equals(getline(i+1), s:lines[i], printf("%s line=%d", name, i+1))
   endfor
 
-  let l = len(s:lines)
+  let l = 4
   for v in vv
     for i in range(len(lines))
       let l += 1
