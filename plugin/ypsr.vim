@@ -7,7 +7,7 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 command! -range -nargs=+ Ypsr
-\ <line1>,<line2>call ypsr#command(<f-args>)
+\ <line1>,<line2>call ypsr#command(<q-args>)
 
 let g:loaded_ypsr = 1
 
