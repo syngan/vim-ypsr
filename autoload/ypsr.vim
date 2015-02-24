@@ -3,6 +3,12 @@ set cpo&vim
 
 scriptencoding utf-8
 
+function! s:echoerr(msg) abort " {{{
+  echohl ErrorMsg
+  echomsg 'inserttext: ' . a:msg
+  echohl None
+endfunction " }}}
+
 function! s:get_default_reg() " {{{
   return get(g:, 'ypsr#default_reg', '"')
 endfunction " }}}
@@ -32,7 +38,7 @@ function! s:ypsr(line1, line2, pat, ...) abort " {{{
   elseif type(reg) == type([])
     let list = reg
   else
-    throw 'ypsr: invalid 4th arg'
+    return s:echorr('invalid 4th arg {string}s')
   endif
 
   let save_pos = getpos('.')
@@ -62,7 +68,7 @@ function! s:parse_args(str) abort " {{{
   let args = []
   while str !~# '^\s*$'
     let str = matchstr(str, '^\s*\zs.*$')
-    if str[0] =~# '[''"]'
+    if str =~# '^[''"]'
       let typ = 1
       let arg = matchstr(str, printf('.*\ze\\@<!%s', str[0]), 1)
       let str = str[strlen(arg) + 2 :]
@@ -102,14 +108,17 @@ function! ypsr#command(arg) range abort " {{{
     elseif p[i] ==# '-1'
       let subst = ''
     elseif p[i] ==# '--'
-      let i += 1
       break
     else
+      let i -= 1
       break
     endif
   endfor
-  let pat = p[i]
-  let reg = p[i+1 :]
+  if i+1 >= len(p)
+    return s:echoerr('missing {pattern}')
+  endif
+  let pat = p[i+1]
+  let reg = p[i+2 :]
 
   let args = [a:firstline, a:lastline, pat, reg, subst]
   return call(function('s:ypsr'), args)
