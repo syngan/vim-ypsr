@@ -13,8 +13,8 @@ function! s:get_default_reg() " {{{
   return get(g:, 'ypsr#default_reg', '"')
 endfunction " }}}
 
-function! s:get_default_subst() " {{{
-  return get(g:, 'ypsr#default_subst_flag', '')
+function! s:get_default_flags() " {{{
+  return get(g:, 'ypsr#default_flags', '')
 endfunction " }}}
 
 function! s:ypsr(line1, line2, pat, ...) abort " {{{
@@ -25,8 +25,9 @@ function! s:ypsr(line1, line2, pat, ...) abort " {{{
   "             リストの場合: リスト
   " @param subst: substitute() の第4引数
 
-  let reg        = a:0 > 0 ? a:1 : s:get_default_reg()
-  let subst_flag = a:0 > 1 ? a:2 : s:get_default_subst()
+  let reg   = a:0 > 0 ? a:1 : s:get_default_reg()
+  let flags = a:0 > 1 ? a:2 : s:get_default_flags()
+  let subst_flag = (flags =~# 'g' ? 'g' : '')
   let lines = getline(a:line1, a:line2)
 
   if type(reg) == type('')
@@ -49,17 +50,20 @@ function! s:ypsr(line1, line2, pat, ...) abort " {{{
       let newlist = map(copy(lines), 'substitute(v:val, a:pat, val, subst_flag)')
       call append(line('.'), newlist)
     endfor
+    if flags =~# 'd'
+      execute printf('%d,%d delete _', a:line1, a:line2)
+    endif
   finally
     call setpos('.', save_pos)
   endtry
 endfunction " }}}
 
-function! ypsr#do(pat, ...) abort range " {{{
+function! ypsr#do(...) abort range " {{{
   " ypsr#do(pat, [reg], [flag])
   " @param pat:  substitute() 第2引数
   " @param reg:  substitute() 第3引数のリスト, または split() of 行番号またはレジスタ
   " @param flag: substitute() 第4引数
-  let args = [a:firstline, a:lastline, a:pat] + a:000
+  let args = [a:firstline, a:lastline] + a:000
   return call(function('s:ypsr'), args)
 endfunction " }}}
 
@@ -100,13 +104,15 @@ function! s:parse_args(str) abort " {{{
 endfunction " }}}
 
 function! ypsr#command(arg) range abort " {{{
-  let subst = s:get_default_subst()
+  let subst = s:get_default_flags()
   let p = s:parse_args(a:arg)
   for i in range(len(p))
     if p[i] ==# '-g'
-      let subst = 'g'
+      let subst .= 'g'
     elseif p[i] ==# '-1'
-      let subst = ''
+      let subst = substitute(subst, 'g', '', 'g')
+    elseif p[i] ==# '-d'
+      let subst .= 'd'
     elseif p[i] ==# '--'
       break
     else
