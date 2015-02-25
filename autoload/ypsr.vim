@@ -9,8 +9,8 @@ function! s:echoerr(msg) abort " {{{
   echohl None
 endfunction " }}}
 
-function! s:get_default_reg() " {{{
-  return get(g:, 'ypsr#default_reg', '"')
+function! s:get_default_subs() " {{{
+  return get(g:, 'ypsr#default_subs', '"')
 endfunction " }}}
 
 function! s:get_default_flags() " {{{
@@ -41,7 +41,7 @@ function! s:ypsr(line1, line2, pat, ...) abort " {{{
   let subst_flag = (flags =~# 'g' ? 'g' : '')
   let lines = getline(a:line1, a:line2)
 
-  let list = s:get_subst(a:0 > 0 ? a:1 : s:get_default_reg())
+  let list = s:get_subst(a:0 > 0 ? a:1 : s:get_default_subs())
   if list == []
     return 0
   endif
