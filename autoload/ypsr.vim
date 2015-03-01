@@ -113,10 +113,12 @@ function! ypsr#command(arg) range abort " {{{
   for i in range(len(p))
     if p[i] ==# '-g'
       let subst .= 'g'
-    elseif p[i] ==# '-1'
-      let subst = substitute(subst, 'g', '', 'g')
     elseif p[i] ==# '-d'
       let subst .= 'd'
+    elseif p[i] ==# '-1'
+      let subst = substitute(subst, 'g', '', 'g')
+    elseif p[i] ==# '-n'
+      let subst = substitute(subst, 'd', '', 'g')
     elseif p[i] ==# '--'
       break
     else
