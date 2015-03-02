@@ -1,0 +1,124 @@
+*ypsr.txt* Yank, Paste, Substitute, and Repeat
+
+CONTENTS						*ypsr-contents*
+
+INTRODUCTION						|ypsr-introduction|
+INTERFACE						|ypsr-interface|
+  COMMANDS						|ypsr-commands|
+  FUNCTIONS						|ypsr-functions|
+  VARIABLES						|ypsr-variables|
+EXAMPLES  						|ypsr-examples|
+
+
+==============================================================================
+INTRODUCTION						*ypsr-introduction*
+
+
+==============================================================================
+INTERFACE						*ypsr-interface*
+
+------------------------------------------------------------------------------
+COMMANDS						*ypsr-commands*
+
+								*:Ypsr*
+:[range]Ypsr [flags] {pattern} [{string}...]
+	Yank [range] lines and put iteratively the text by {string}.
+
+	A command version of |ypsr#do()|.
+	{pattern} is a regexp pattern.  See |string-match|.
+	{string}s are a list of Strings.
+	When {string} is omitted, |g:ypsr#default_subs| is used.
+	If {pattern} or {string} contains a white space, you need to quote it
+	with single quotes or double quotes.  Single quotes need to be escaped
+	by backslash in single-quoted argument, and double quotes in
+	double-quoted argument.  You can have the backticks expanded as a Vim
+	expression. by using the syntax `={expr}`. See |`=| for more details.
+	{flags}:
+		-g: all matches of {pattern} are replaced
+		-1: the first match of {pattern} is replaced.
+		-d: delete [range] lines
+		-n: not delete [range] lines
+	When {flags} is omitted, |g:ypsr#default_flags| is used.
+
+	When you want to use "-g" or "-d" as a pattern, use -- like the following: >
+		:Ypsr -- -g s1 s2 s3
+<
+------------------------------------------------------------------------------
+FUNCTIONS							*ypsr-functions*
+
+								*ypsr#do()*
+ypsr#do({pattern} [, {sub} [, {flags}]])
+	A function version of |:Ypsr|.
+	{pattern} is a regexp pattern.
+	{sub} is a list of Strings or a String or a Number.
+	If {sub} is a String, make a List from register {sub}.
+	If {sub} is a Number, make a List from line {sub} from the current buffer.
+	When {sub} is omitted, |g:ypsr#default_subs| is used.
+
+	When {flags} contains "g" then replace all matched text in each line.
+	When {flags} contains "d" then delete the original text.
+	When {flags} is omitted, |g:ypsr#default_flags| is used.
+
+------------------------------------------------------------------------------
+VARIABLES							*ypsr-variables*
+
+g:ypsr#default_subs					 *g:ypsr#default_subs*
+	The default value of 2nd argument of |ypsr#do()|.
+	Default: '"' (the unnamed register)
+g:ypsr#default_flags					 *g:ypsr#default_flags*
+	The default value of 3rd argument of |ypsr#do()|.
+	Default: ""
+
+==============================================================================
+EXAMPLES							*ypsr-examples*
+
+Insert a list of increasing numbers: >
+	:Ypsr .* 1 2 3 4 5
+< or >
+	:Ypsr .* '1' "2" 3 4 5
+< or >
+	:Ypsr .* `=range(1, 4)` 5
+<
+
+Original Text: >
+	case hoge:
+		return "hogehoge"
+	vim poo
+<
+Do ":1,2Ypsr -1 hoge foo baa", then >
+	case hoge:
+		return "hogehoge"
+	case foo:
+		return "foohoge"
+	case baa:
+		return "baahoge"
+	vim poo
+<
+Do ":1,2Ypsr -g hoge foo baa", then >
+	case hoge:
+		return "hogehoge"
+	case foo:
+		return "foofoo"
+	case baa:
+		return "baabaa"
+	vim poo
+<
+Do ":1,2Ypsr -d -g hoge foo baa", then >
+	case foo:
+		return "foofoo"
+	case baa:
+		return "baabaa"
+	vim poo
+<
+Do ":1,2call ypsr#do('hoge', 3, 'g') >
+	case hoge:
+		return "hogehoge"
+	case vim:
+		return "vimvim"
+	case poo:
+		return "poopoo"
+	vim poo
+<
+
+==============================================================================
+vim:tw=78:fo=tcq2mM:ts=8:ft=help:norl
