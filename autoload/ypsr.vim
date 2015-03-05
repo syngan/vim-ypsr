@@ -130,7 +130,7 @@ function! ypsr#command(arg) range abort " {{{
     return s:echoerr('missing {pattern}')
   endif
   let pat = p[i+1]
-  let reg = p[i+2 :]
+  let reg = i+2 < len(p) ? p[i+2 :] : s:get_default_subs()
 
   let args = [a:firstline, a:lastline, pat, reg, subst]
   return call(function('s:ypsr'), args)
