@@ -38,7 +38,7 @@ case baa:
     return "baabaa"
 vim poo
 ```
-- Do `:1,2Ypsr -d -g hoge foo baa`, then 
+- Do `:1,2Ypsr -d -g hoge foo baa`, then
 ```
 case foo:
     return "foofoo"
